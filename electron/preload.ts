@@ -23,10 +23,25 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
 })
 
 contextBridge.exposeInMainWorld('ipcAPI', {
-  saveBackup: () => {
-    ipcRenderer.send(SAVE)
+  saveBackup: (saveName: string) => {
+    ipcRenderer.send(SAVE,  saveName)
   },
-  loadBackup: () => {
-    ipcRenderer.send(LOAD)
+  loadBackup: (saveName: string) => {
+    ipcRenderer.send(LOAD, saveName)
+  },
+  deleteBackup: (saveName: string) => {
+    ipcRenderer.send('DELETE', saveName)
+  },
+  getAllBackups: () => {
+    ipcRenderer.send('GET_ALL')
+  },
+  deleteAllBackups: () => {
+    ipcRenderer.send('DELETE_ALL')
+  },
+  closeWindow: () => {
+    ipcRenderer.send('CLOSE')
+  },
+  createBackup: (saveName: string) => {
+    ipcRenderer.send('CREATE', saveName)
   }
 })

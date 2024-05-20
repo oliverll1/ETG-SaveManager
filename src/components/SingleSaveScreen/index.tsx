@@ -3,11 +3,11 @@ import { saveBackup, loadBackup } from '../../IPC/IPCMessages';
 
 export function SingleSaveScreen() {
   const handleSaveClick = () => {
-    saveBackup();
+    saveBackup('savename');
   };
 
   const handleLoadClick = () => {
-    loadBackup();
+    loadBackup('loadname');
   };
 
   return (

@@ -3,14 +3,17 @@ import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 import { ThemeProvider } from "@material-tailwind/react";
-import { BrowserRouter as Router } from 'react-router-dom';
+import { SaveProvider } from './components/Context/SaveProvider';
+import { HashRouter as Router } from 'react-router-dom';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ThemeProvider>
-       <Router>
-          <App />
-       </Router>
+      <SaveProvider>
+          <Router>
+            <App />
+          </Router>
+       </SaveProvider>
     </ThemeProvider>
   </React.StrictMode>,
 )
