@@ -5,15 +5,14 @@ export const createFile = async (filePath: string) => {
         const fileContent = await fs.readFile(filePath, 'utf-8');
 
         if (fileContent.trim() === '') {
-            fs.writeFile(filePath, '{}', 'utf-8');
+            await fs.writeFile(filePath, '{}', 'utf-8');
         }
 
-      } catch (error) {
-        if (error.code === 'ENOENT') {
+      } catch (error: unknown) {
+        if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
           await fs.writeFile(filePath, '{}', 'utf-8');
         } else {
           throw error;
         }
       }
 }
-

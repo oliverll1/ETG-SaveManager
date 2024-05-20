@@ -9,23 +9,36 @@ const { SAVE, LOAD, DELETE, GET_ALL, DELETE_ALL, CLOSE, CREATE } = IPCActions.Wi
 
 const handleSave = async (event: IpcMainEvent, arg: string) => {
     console.log(arg);
-    return "save";   
+    return "save";
 }
 
 const handleLoad = async (event: IpcMainEvent, arg: string) => {
     console.log(arg);
-    return "load";  
+    return "load";
 }
 
-const handleDelete = async (event: IpcMainEvent, arg: string) => {
-    console.log(arg);
-    return "delete";
+const handleDelete = async (event: IpcMainEvent, backupName: string) => {
+    try {
+        const backupData = await fs.readFile('backups/backups.json', 'utf8');
+        const backups = JSON.parse(backupData);
+        delete backups[backupName];
+        await fs.writeFile('backups/backups.json', JSON.stringify(backups, null, 4));
+        await fs.rm(`backups/${backupName}`, { recursive: true });
+    } catch (error) {
+        console.error('Error in handleDelete:', error);
+    }
 }
 
-const handleGetAll = async (event: IpcMainEvent, arg: string) => {
-    console.log(arg);
-    return "getAll";
-}   
+const handleGetAll = async (event: IpcMainEvent) => {
+    try {
+        const data = await fs.readFile('backups/backups.json', 'utf8');
+        const backups = JSON.parse(data);
+        event.sender.send('GET_ALL_SUCCESS', Object.values(backups));
+    } catch (error) {
+        event.sender.send('GET_ALL_ERROR', error);
+        console.error('Error reading or parsing file:', error);
+    }
+}  
 
 const handleDeleteAll = async (event: IpcMainEvent, arg: string) => {
     console.log(arg);
@@ -69,11 +82,11 @@ const handleCreate = async (event: IpcMainEvent, backupName: string) => {
         await fs.mkdir(folderName, { recursive: true });
 
         // Create the file if it doesn't exist
-        await createFile(filePath);
+        createFile(filePath);
 
         // Parse the JSON file
         const fileData = JSON.parse(await fs.readFile(filePath, 'utf-8'));
-
+        console.log(fileData);
 
         // Check if the entry already exists
         if (Object.keys(fileData).includes(backupName)) {
@@ -91,7 +104,6 @@ const handleCreate = async (event: IpcMainEvent, backupName: string) => {
         console.error(error);
     }
 }
-
 
 interface IpcHandler {
     event: string;
@@ -134,4 +146,10 @@ export const registerIPCHandlers = () => {
     ipcHandlers.forEach(( handler:IpcHandler ) => {
         ipcMain.on(handler.event, handler.callback)
     })
+
+    return () => {
+        ipcHandlers.forEach(({ event, callback }) => {
+            ipcMain.removeListener(event, callback);
+        });
+    };
 };
