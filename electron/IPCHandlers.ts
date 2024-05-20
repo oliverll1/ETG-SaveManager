@@ -1,8 +1,9 @@
-import fs from 'fs';
+import fs from 'fs/promises';
 import path from 'path';
 
 import { BrowserWindow, ipcMain, IpcMainEvent } from 'electron';
 import { IPCActions } from './IPCActions';
+import { createFile } from './utils';
 
 const { SAVE, LOAD, DELETE, GET_ALL, DELETE_ALL, CLOSE, CREATE } = IPCActions.Window;
 
@@ -39,51 +40,56 @@ const handleClose = async (event: IpcMainEvent) => {
     }
 }
 
-const handleCreate = async (event: IpcMainEvent, name: string) => {
-    console.log(name);
 
-    if(!name){
-        return 'Name cannot be empty.'
+const handleCreate = async (event: IpcMainEvent, backupName: string) => {
+
+    if(!backupName){
+        return 'Backup name cannot be empty.'
     }
 
     const folderName = 'backups';
     const fileName = 'backups.json';
     const filePath = path.join(folderName, fileName);
+    const backupPath = path.join(folderName, backupName);
+
+    const date = new Date().toLocaleString('en-US', {
+        timeZone: 'UTC',
+    });
+    
 
     const data = {
-        name: '',
-        date: '',
-        path: '',
-        description: '',
+        name: backupName,
+        date: date,
+        path: backupPath,
         isBackup: false,
     };
 
-    // Check if the folder exists
-    if (!fs.existsSync(folderName)) {
-        fs.mkdirSync(folderName);
+    try {
+        // Check if the folder exists
+        await fs.mkdir(folderName, { recursive: true });
+
+        // Create the file if it doesn't exist
+        await createFile(filePath);
+
+        // Parse the JSON file
+        const fileData = JSON.parse(await fs.readFile(filePath, 'utf-8'));
+
+
+        // Check if the entry already exists
+        if (Object.keys(fileData).includes(backupName)) {
+            return 'Entry with that name already exists.';
+        }
+
+        // Add the new entry
+        fileData[backupName] = data;
+
+        // Write the updated JSON file
+        await fs.writeFile(filePath, JSON.stringify(fileData, null, 2), 'utf-8');
+
+        await fs.mkdir(backupPath, { recursive: true });
+    } catch (error) {
+        console.error(error);
     }
-
-    // Check if the file exists
-    if (!fs.existsSync(filePath)) {
-        fs.writeFileSync(filePath, JSON.stringify({}), 'utf-8');
-    }
-
-    // Parse the JSON backup file
-    const fileData = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-
-    // Check if the entry already exists
-    if (Object.keys(fileData).includes(name)) {
-        return 'Entry with that name already exists.';
-    }
-
-    
-    // Add the new entry
-    fileData[name] = data;
-
-    // Write the updated JSON file
-    fs.writeFileSync(filePath, JSON.stringify(fileData, null, 2), 'utf-8');
-
-    return "create";
 }
 
 

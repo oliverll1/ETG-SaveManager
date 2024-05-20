@@ -12,7 +12,6 @@ export const SaveProvider = ({children}: SaveProviderProps) => {
         name: "",
         date: "",
         path: "",
-        description: "",
         isBackup: false
     });
 
