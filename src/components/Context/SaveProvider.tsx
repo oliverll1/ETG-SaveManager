@@ -8,15 +8,17 @@ interface SaveProviderProps {
 }
 
 export const SaveProvider = ({children}: SaveProviderProps) => {
-    const [selectedSave, setSelectedSave] = useState({
+    const [selectedBackup, setSelectedBackup] = useState({
         name: "",
         date: "",
         path: "",
         isBackup: false
     });
 
+    const [backupList, setBackupList] = useState<object[]>([]);
+
     return (
-        <SaveContext.Provider value={{selectedSave, setSelectedSave}}>
+        <SaveContext.Provider value={{selectedBackup, setSelectedBackup, backupList, setBackupList}}>
             {children}
         </SaveContext.Provider>
     );

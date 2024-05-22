@@ -1,14 +1,13 @@
 import { FolderIcon, TrashIcon } from '@heroicons/react/16/solid';
 import { Button, Input, List, ListItem, ListItemPrefix, ListItemSuffix, Typography } from '@material-tailwind/react';
 import { getAllBackups, deleteBackup, createBackup } from '../../IPC/IPCMessages';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { SaveState } from '../Context/SaveProvider';
 
 export function SaveList() {
 
-    const { selectedSave, setSelectedSave } = SaveState;
+    const { selectedBackup, setSelectedBackup, backupList, setBackupList } = SaveState();
 
-    const [backupList, setBackupList] = useState<object[]>([]);
     const [saveNameInputText, setSaveNameInputText] = useState('');
 
    
@@ -26,7 +25,8 @@ export function SaveList() {
         }
     }
 
-    const handleDelete = async (name:string) => {
+    const handleDelete = async (event:React.MouseEvent, name:string) => {
+        event.stopPropagation();
         await deleteBackup(name);
         setBackupList((prevList) => prevList.filter((backup) => backup.name !== name));
     }
@@ -45,11 +45,15 @@ export function SaveList() {
         }
     }
 
+    const handleSelect = (name: string) => {
+        setSelectedBackup((prevBackup) => ({ ...prevBackup, name}));
+    }
+
     const handleInputChange = (e:React.ChangeEvent<HTMLInputElement>) => {
         setSaveNameInputText(e.target.value);
     }
 
-    console.log('saveNameInputText');
+    console.log(selectedBackup);
 
     useEffect(() => {
         getBackupList();
@@ -81,7 +85,11 @@ export function SaveList() {
 
             <List>
                 {backupList.map((item) => (
-                    <ListItem key={item.name} className="text-gray-100 hover:bg-custom-purple hover:text-gray-100 focus:bg-custom-purple focus:text-gray-100 active:bg-custom-purple active:text-gray-100">
+                    <ListItem 
+                        key={item.name}
+                        onClick={() => handleSelect(item.name)}
+                        className="text-gray-100 hover:bg-custom-purple hover:text-gray-100 focus:bg-custom-purple focus:text-gray-100 active:bg-custom-purple active:text-gray-100"
+                    >
                     <ListItemPrefix>
                         <FolderIcon className="h-5 w-5" />
                     </ListItemPrefix>
@@ -90,7 +98,7 @@ export function SaveList() {
                     <ListItemSuffix >
                         <Button 
                             className=" hover:bg-custom-purple-darker  p-2 rounded-xl transition-all"
-                            onClick={() => handleDelete(item.name)}
+                            onClick={(event) => handleDelete(event, item.name)}
                         > 
                         <TrashIcon className="h-5 w-5"/>
                         </Button>

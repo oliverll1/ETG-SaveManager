@@ -1,4 +1,5 @@
 import fs from 'fs/promises';
+import fsExtra from 'fs-extra';
 
 export const createFile = async (filePath: string) => {
     try {
@@ -14,5 +15,14 @@ export const createFile = async (filePath: string) => {
         } else {
           throw error;
         }
+      }
+}
+
+export const copyDirectory = async (sourceDir: string, destDir: string) => {
+    try {
+        await fsExtra.copy(sourceDir, destDir, { overwrite: true, errorOnExist: false });
+        console.log('Folder copied successfully!');
+      } catch (err) {
+        console.error('An error occurred while copying the folder:', err);
       }
 }
