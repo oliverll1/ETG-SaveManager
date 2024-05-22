@@ -1,11 +1,11 @@
 import fs from 'fs/promises';
 import path from 'path';
-import regedit from 'regedit';
+
 import os from 'os';
 
 import { BrowserWindow, ipcMain, IpcMainEvent } from 'electron';
 import { IPCActions } from './IPCActions';
-import { copyDirectory, createFile } from './utils';
+import { copyDirectory, createFile, removeRegistryKey } from './utils';
 
 const { SAVE, LOAD, DELETE, GET_ALL, DELETE_ALL, CLOSE, CREATE } = IPCActions.Window;
 
@@ -17,10 +17,9 @@ const handleSave = async (event: IpcMainEvent, backupName: string) => {
 const handleLoad = async (event: IpcMainEvent, backupName: string) => {
     const destDir = path.join(os.homedir(), 'AppData', 'LocalLow', 'Dodge Roll', 'Enter the Gungeon');
     copyDirectory(`backups/${backupName}`, destDir);
-
-    //const registryKeyPath = 'HKCU\\SOFTWARE\\Dodge Roll\\Enter the Gungeon';
-
-   
+    
+    removeRegistryKey();
+    
 }
 
 const handleDelete = async (event: IpcMainEvent, backupName: string) => {
