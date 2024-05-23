@@ -14,6 +14,7 @@ export default withMT({
       colors: {
         'custom-purple': '#664EFF',
         'custom-purple-darker': '#302D96',
+        'custom-purple-2': '#5541d6',
         'custom-gray': '#303030',
         'custom-gray-darker': '#242424',
       },

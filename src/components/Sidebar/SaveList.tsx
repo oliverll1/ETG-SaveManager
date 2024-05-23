@@ -5,17 +5,13 @@ import { useEffect, useState } from 'react';
 import { SaveState } from '../Context/SaveProvider';
 
 export function SaveList() {
-
     const { selectedBackup, setSelectedBackup, backupList, setBackupList } = SaveState();
-
     const [saveNameInputText, setSaveNameInputText] = useState('');
 
-   
     const getBackupList = async () => {
         try {
             const data = await getAllBackups();
-            console.log(data);
-
+          
             if (JSON.stringify(backupList) !== JSON.stringify(data)) {
                setBackupList(data);
             }
@@ -28,6 +24,7 @@ export function SaveList() {
     const handleDelete = async (event:React.MouseEvent, name:string) => {
         event.stopPropagation();
         await deleteBackup(name);
+        setSelectedBackup({ name: '', date: '', path: '', isBackup: false });
         setBackupList((prevList) => prevList.filter((backup) => backup.name !== name));
     }
 
@@ -53,8 +50,6 @@ export function SaveList() {
         setSaveNameInputText(e.target.value);
     }
 
-    console.log(selectedBackup);
-
     useEffect(() => {
         getBackupList();
     }, []);
@@ -63,7 +58,7 @@ export function SaveList() {
         <>
             <div className="p-2 ">
                 <Typography variant="h6" className="text-gray-100 text-left mb-2">
-                Create a new Save
+                Create a new save:
                 </Typography>
                 <Input 
                 className="text-gray-100 border-gray-100 focus:border-white focus:border-t-white"

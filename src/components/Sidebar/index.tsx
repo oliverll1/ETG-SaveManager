@@ -21,7 +21,7 @@ export function Sidebar() {
   return (
     <Card className="h-screen w-full max-w-[20rem] p-4 shadow-xl shadow-blue-gray-900/5 rounded-none bg-custom-gray-darker">
       <div className="mb-2 flex items-center gap-4 p-4">
-        <img src="/public/bullet.png" alt="brand" className="h-16 w-16" />
+        <img src="/bullet.png" alt="brand" className="h-16 w-16" />
         <Typography variant="h5" className="text-gray-100 text-left">
           Enter the Gungeon Save Manager
         </Typography>
