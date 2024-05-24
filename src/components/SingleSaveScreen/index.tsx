@@ -1,4 +1,4 @@
-import { Button, Card, Typography } from '@material-tailwind/react';
+import { Button, Card, Typography, select } from '@material-tailwind/react';
 import { saveBackup, loadBackup, deleteBackup } from '../../IPC/IPCMessages';
 import { SaveState } from '../Context/SaveProvider';
 import { SaveStatus } from './SaveStatus';
@@ -7,8 +7,15 @@ import { Chip } from "@material-tailwind/react";
 export function SingleSaveScreen() {
 
   const { selectedBackup, setSelectedBackup, setBackupList } = SaveState();
-  const handleSaveClick = () => {
-    saveBackup(selectedBackup.name);
+  const handleSaveClick = async () => {
+    try {
+      const backup = await saveBackup(selectedBackup.name);
+      console.log(backup);
+      setSelectedBackup(backup);
+      
+    } catch (error) {
+        console.error('Error fetching backup list:', error); 
+    }
   };
 
   const handleLoadClick = () => {
@@ -16,7 +23,7 @@ export function SingleSaveScreen() {
   };
 
   const handleDelete = async (name:string) => {
-    await deleteBackup(name);
+    deleteBackup(name);
     setSelectedBackup({ name: '', date: '', path: '', isBackup: false });
     setBackupList((prevList) => prevList.filter((backup) => backup.name !== name));
   }
@@ -29,9 +36,9 @@ export function SingleSaveScreen() {
    <Typography className="text-gray-100 text-left w-full p-8" variant="h1">{selectedBackup.name}</Typography>
 
       <Card className="h-[350px] w-[420px] mx-auto flex items-center justify-center gap-8 px-8 bg-gray-700 shadow-md shadow-custom-gray-darker">
-        <div className="flex h-10 items-center justify-between w-full ">
-          {!selectedBackup.date ?  <Chip className="text-gray-100 text-left text-xs" value={`Last Saved: ${selectedBackup.date}`} /> : null}
-          <SaveStatus isBackup={selectedBackup.isBackup}/>
+        <div className={selectedBackup.isBackup ? "flex justify-between w-full" : "flex justify-end w-full"}>
+          {selectedBackup.date ?  <Chip className="text-gray-100 text-left text-xs w-fit" value={`${selectedBackup.date}`} /> : null}
+          <SaveStatus className='w-fit' isBackup={selectedBackup.isBackup}/>
         </div>
 
         <div className="flex justify-between mt-2 h-full max-h-20 w-full">

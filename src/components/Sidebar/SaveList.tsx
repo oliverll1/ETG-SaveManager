@@ -1,6 +1,6 @@
 import { FolderIcon, TrashIcon } from '@heroicons/react/16/solid';
 import { Button, Input, List, ListItem, ListItemPrefix, ListItemSuffix, Typography } from '@material-tailwind/react';
-import { getAllBackups, deleteBackup, createBackup } from '../../IPC/IPCMessages';
+import { getAllBackups, deleteBackup, createBackup, getBackup } from '../../IPC/IPCMessages';
 import { useEffect, useState } from 'react';
 import { SaveState } from '../Context/SaveProvider';
 
@@ -28,7 +28,6 @@ export function SaveList() {
         setBackupList((prevList) => prevList.filter((backup) => backup.name !== name));
     }
 
-
     const handleCreate = async () => {
         if (saveNameInputText !== '') {
             const backupExists = backupList.some(backup => backup.name === saveNameInputText);
@@ -42,8 +41,16 @@ export function SaveList() {
         }
     }
 
-    const handleSelect = (name: string) => {
-        setSelectedBackup((prevBackup) => ({ ...prevBackup, name}));
+    const handleSelect = async (name: string) => {
+        try {
+            const data = await getBackup(name);
+          
+            setSelectedBackup(data);
+            
+        } catch (error) {
+            console.error('Error fetching backup list:', error); 
+        }
+       
     }
 
     const handleInputChange = (e:React.ChangeEvent<HTMLInputElement>) => {

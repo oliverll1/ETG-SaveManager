@@ -7,11 +7,33 @@ import { BrowserWindow, ipcMain, IpcMainEvent } from 'electron';
 import { IPCActions } from './IPCActions';
 import { copyDirectory, createFile, removeRegistryKey } from './utils';
 
-const { SAVE, LOAD, DELETE, GET_ALL, DELETE_ALL, CLOSE, CREATE } = IPCActions.Window;
+const { SAVE, LOAD, DELETE, GET_ALL, GET_BACKUP, DELETE_ALL, CLOSE, CREATE } = IPCActions.Window;
 
 const handleSave = async (event: IpcMainEvent, backupName: string) => {
-    const sourceDir = path.join(os.homedir(), 'AppData', 'LocalLow', 'Dodge Roll', 'Enter the Gungeon');
-    copyDirectory(sourceDir, `backups/${backupName}`);
+    try {
+        const sourceDir = path.join(os.homedir(), 'AppData', 'LocalLow', 'Dodge Roll', 'Enter the Gungeon');
+        copyDirectory(sourceDir, `backups/${backupName}`);
+
+        const backupData = await fs.readFile('backups/backups.json', 'utf8');
+        const backups = JSON.parse(backupData);
+
+        backups[backupName] = {
+            name: backupName,
+            date: new Date().toLocaleString('en-US', {
+                timeZone: 'UTC',
+            }),
+            path: `backups/${backupName}`,
+            isBackup: true,
+        };
+        
+        await fs.writeFile('backups/backups.json', JSON.stringify(backups));
+
+        event.sender.send('SAVE_SUCCESS', backups[backupName]);
+
+    } catch (error) {
+        event.sender.send('SAVE_ERROR', error);
+        console.error('Error reading or parsing file:', error);
+    }
 }
 
 const handleLoad = async (event: IpcMainEvent, backupName: string) => {
@@ -45,6 +67,17 @@ const handleGetAll = async (event: IpcMainEvent) => {
     }
 }  
 
+const handleGetBackup = async (event: IpcMainEvent, backupName: string) => {
+    try {
+        const backupData = await fs.readFile('backups/backups.json', 'utf8');
+        const backups = JSON.parse(backupData);
+        event.sender.send('GET_SUCCESS', backups[backupName]);
+    } catch (error) {
+        event.sender.send('GET_ERROR', error);
+        console.error('Error reading or parsing file:', error);
+    }
+}
+
 const handleDeleteAll = async (event: IpcMainEvent, arg: string) => {
     console.log(arg);
     return "deleteAll";
@@ -58,7 +91,6 @@ const handleClose = async (event: IpcMainEvent) => {
     }
 }
 
-
 const handleCreate = async (event: IpcMainEvent, backupName: string) => {
 
     if(!backupName){
@@ -69,15 +101,11 @@ const handleCreate = async (event: IpcMainEvent, backupName: string) => {
     const fileName = 'backups.json';
     const filePath = path.join(folderName, fileName);
     const backupPath = path.join(folderName, backupName);
-
-    const date = new Date().toLocaleString('en-US', {
-        timeZone: 'UTC',
-    });
     
 
     const data = {
         name: backupName,
-        date: date,
+        date: '',
         path: backupPath,
         isBackup: false,
     };
@@ -127,6 +155,10 @@ const ipcHandlers = [
     { 
         event: DELETE, 
         callback: handleDelete
+    },
+    {
+        event: GET_BACKUP,
+        callback: handleGetBackup
     },
     { 
         event: GET_ALL, 

@@ -1,11 +1,16 @@
 import { Chip } from "@material-tailwind/react";
  
-export function SaveStatus({isBackup}: {isBackup: boolean}) {
+interface SaveStatusProps {
+    isBackup: boolean
+    className?: string
+}
+
+export function SaveStatus({isBackup, className}: SaveStatusProps) {
 
     if(isBackup) {
         return (
             <Chip
-            className="bg-green-200 text-green-900"
+            className={`${className} bg-green-200 text-green-900`}
             variant="ghost"
             color="green"
             size="sm"
@@ -21,7 +26,7 @@ export function SaveStatus({isBackup}: {isBackup: boolean}) {
     <div className="flex gap-2">
      
       <Chip
-        className="bg-red-200 text-red-900"
+        className= {`${className} bg-red-200 text-red-900`}
         variant="ghost"
         color="red"
         size="sm"

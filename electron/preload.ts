@@ -1,6 +1,6 @@
 import { ipcRenderer, contextBridge } from 'electron';
 import { IPCActions } from './IPCActions';
-const { SAVE, LOAD, DELETE, GET_ALL, DELETE_ALL, CLOSE, CREATE } = IPCActions.Window;
+const { SAVE, LOAD, DELETE, GET_ALL, GET_BACKUP, DELETE_ALL, CLOSE, CREATE } = IPCActions.Window;
 
 // --------- Expose some API to the Renderer process ---------
 contextBridge.exposeInMainWorld('ipcRenderer', {
@@ -24,7 +24,15 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
 
 contextBridge.exposeInMainWorld('ipcAPI', {
   saveBackup: (saveName: string) => {
-    ipcRenderer.send(SAVE,  saveName)
+    return new Promise((resolve, reject) => {
+      ipcRenderer.once('SAVE_SUCCESS', (event, backup) => {
+        resolve(backup);
+      });
+      ipcRenderer.once('SAVE_ERROR', (event, error) => {
+        reject(error);
+      });
+      ipcRenderer.send(SAVE,  saveName)
+    });
   },
   loadBackup: (saveName: string) => {
     ipcRenderer.send(LOAD, saveName)
@@ -42,6 +50,17 @@ contextBridge.exposeInMainWorld('ipcAPI', {
       });
       ipcRenderer.send(GET_ALL);
   });
+  },
+  getBackup: (saveName: string) => {
+    return new Promise((resolve, reject) => {
+      ipcRenderer.once('GET_SUCCESS', (event, backup) => {
+        resolve(backup);
+      });
+      ipcRenderer.once('GET_ERROR', (event, error) => {
+        reject(error);
+      });
+      ipcRenderer.send(GET_BACKUP, saveName);
+    });
   },
   deleteAllBackups: () => {
     ipcRenderer.send(DELETE_ALL)
