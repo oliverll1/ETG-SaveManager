@@ -3,6 +3,7 @@ import './App.css'
 import { SaveState } from './components/Context/SaveProvider';
 import { Sidebar } from './components/Sidebar';
 import { SingleSaveScreen } from './components/SingleSaveScreen';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
   const { selectedBackup, setSelectedBackup } = SaveState();
@@ -13,6 +14,7 @@ function App() {
       <div className='flex bg-custom-gray'>
         <Sidebar />
         <SingleSaveScreen />
+        <Toaster position='top-right'/>
       </div>
     )
   }

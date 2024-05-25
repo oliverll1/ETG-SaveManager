@@ -25,8 +25,10 @@ export const copyDirectory = async (sourceDir: string, destDir: string) => {
     try {
         await fsExtra.copy(sourceDir, destDir, { overwrite: true, errorOnExist: false });
         console.log('Folder copied successfully!');
-      } catch (err) {
-        console.error('An error occurred while copying the folder:', err);
+        return true;
+      } catch (error) {
+        console.error('An error occurred while copying the folder:', error);
+        return false;
       }
 }
 
@@ -40,7 +42,6 @@ export const removeRegistryKey = async () => {
     // Execute the PowerShell command asynchronously
     const { stdout, stderr } = await execAsync(command);
     console.log('Output:', stdout);
-    console.error('Error Output:', stderr);
   } catch (error) {
       console.error('Error:', error);
   }

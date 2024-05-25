@@ -12,6 +12,7 @@ export default withMT({
   theme: {
     extend: {
       colors: {
+        'custom-red-darker': '#750005',
         'custom-purple': '#664EFF',
         'custom-purple-darker': '#302D96',
         'custom-purple-2': '#5541d6',

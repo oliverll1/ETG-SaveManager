@@ -1,8 +1,9 @@
-import { Button, Card, Typography, select } from '@material-tailwind/react';
+import { Button, Card, Typography } from '@material-tailwind/react';
 import { saveBackup, loadBackup, deleteBackup } from '../../IPC/IPCMessages';
 import { SaveState } from '../Context/SaveProvider';
 import { SaveStatus } from './SaveStatus';
 import { Chip } from "@material-tailwind/react";
+import toast from 'react-hot-toast';
 
 export function SingleSaveScreen() {
 
@@ -12,14 +13,17 @@ export function SingleSaveScreen() {
       const backup = await saveBackup(selectedBackup.name);
       console.log(backup);
       setSelectedBackup(backup);
+      toast.success('Saved');
       
     } catch (error) {
-        console.error('Error fetching backup list:', error); 
+        console.error('Error saving backup:', error); 
+        toast.error('Error saving backup');
     }
   };
 
   const handleLoadClick = () => {
     loadBackup(selectedBackup.name);
+    toast.success('Loaded');
   };
 
   const handleDelete = async (name:string) => {
@@ -59,7 +63,7 @@ export function SingleSaveScreen() {
 
         <Button 
         onClick={() => handleDelete(selectedBackup.name)}
-        className='bg-red-900 hover:border-pink-900 hover:bg-pink-900 outline-none focus:outline-none text-gray-100 text-sm max-w-60 w-full mx-auto mt-4'>
+        className='bg-red-900 hover:border-custom-red-darker hover:bg-custom-red-darker outline-none focus:outline-none text-gray-100 text-sm max-w-60 w-full mx-auto mt-4'>
           Delete Save
         </Button>
       </Card> 

@@ -12,7 +12,12 @@ const { SAVE, LOAD, DELETE, GET_ALL, GET_BACKUP, DELETE_ALL, CLOSE, CREATE } = I
 const handleSave = async (event: IpcMainEvent, backupName: string) => {
     try {
         const sourceDir = path.join(os.homedir(), 'AppData', 'LocalLow', 'Dodge Roll', 'Enter the Gungeon');
-        copyDirectory(sourceDir, `backups/${backupName}`);
+        const copied = await copyDirectory(sourceDir, `backups/${backupName}`);
+
+        if(!copied){
+            event.sender.send('SAVE_ERROR', 'Failed to copy directory');
+            return;
+        }
 
         const backupData = await fs.readFile('backups/backups.json', 'utf8');
         const backups = JSON.parse(backupData);
@@ -37,12 +42,24 @@ const handleSave = async (event: IpcMainEvent, backupName: string) => {
 }
 
 const handleLoad = async (event: IpcMainEvent, backupName: string) => {
-    const destDir = path.join(os.homedir(), 'AppData', 'LocalLow', 'Dodge Roll', 'Enter the Gungeon');
-    copyDirectory(`backups/${backupName}`, destDir);
-    
-    removeRegistryKey();
-    
+    try {
+        const destDir = path.join(os.homedir(), 'AppData', 'LocalLow', 'Dodge Roll', 'Enter the Gungeon');
+        const copied = await copyDirectory(`backups/${backupName}`, destDir);
+        removeRegistryKey();
+
+        if(!copied){
+            event.sender.send('LOAD_ERROR', 'Failed to copy directory');
+            return;
+        }
+
+        event.sender.send('LOAD_SUCCESS', 'Failed to copy directory');
+
+    } catch (error) {
+        event.sender.send('LOAD_ERROR', 'Failed to copy directory');
+        console.error('Error loading backup:', error);
+    }
 }
+
 
 const handleDelete = async (event: IpcMainEvent, backupName: string) => {
     try {

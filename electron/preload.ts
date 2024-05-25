@@ -35,7 +35,15 @@ contextBridge.exposeInMainWorld('ipcAPI', {
     });
   },
   loadBackup: (saveName: string) => {
-    ipcRenderer.send(LOAD, saveName)
+    return new Promise<void>((resolve, reject) => {
+      ipcRenderer.once('LOAD_SUCCESS', (event) => {
+        resolve();
+      });
+      ipcRenderer.once('LOAD_ERROR', (event) => {
+        reject();
+      });
+      ipcRenderer.send(LOAD,  saveName)
+    });
   },
   deleteBackup: (saveName: string) => {
     ipcRenderer.send(DELETE, saveName)
