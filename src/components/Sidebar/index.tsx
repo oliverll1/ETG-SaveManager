@@ -11,8 +11,10 @@ import {
 } from "@heroicons/react/24/solid";
 import { SaveList } from "./SaveList";
 import { closeWindow } from '../../IPC/IPCMessages';
+import { useNavigate } from 'react-router-dom';
 
 export function Sidebar() { 
+  const navigate = useNavigate();
 
   const handleClose = () => {
     closeWindow();
@@ -32,7 +34,9 @@ export function Sidebar() {
   
         <hr className="my-2 border-blue-gray-50" />
      <List>
-        <ListItem className="text-gray-100 hover:bg-custom-purple hover:text-gray-100 focus:bg-custom-purple focus:text-gray-100 active:bg-custom-purple active:text-gray-100">
+        <ListItem 
+        onClick={() => {  navigate('/settings')} }
+        className="text-gray-100 hover:bg-custom-purple hover:text-gray-100 focus:bg-custom-purple focus:text-gray-100 active:bg-custom-purple active:text-gray-100">
           <ListItemPrefix>
             <Cog6ToothIcon className="h-5 w-5" />
           </ListItemPrefix>

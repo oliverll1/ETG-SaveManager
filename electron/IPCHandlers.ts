@@ -7,9 +7,17 @@ import { BrowserWindow, ipcMain, IpcMainEvent } from 'electron';
 import { IPCActions } from './IPCActions';
 import { copyDirectory, createFile, removeRegistryKey } from './utils';
 
-const { SAVE, LOAD, DELETE, GET_ALL, GET_BACKUP, DELETE_ALL, CLOSE, CREATE } = IPCActions.Window;
+interface IpcHandler {
+    event: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    callback: (event: IpcMainEvent, ...args: any ) => void | Promise<void | string>;
+}
 
-const handleSave = async (event: IpcMainEvent, backupName: string) => {
+const { SAVE, LOAD, DELETE, GET_ALL, GET_BACKUP, DELETE_ALL, CLOSE, CREATE, ALWAYS_ON_TOP } = IPCActions.Window;
+
+const handleSave = async (event: IpcMainEvent, arg: string) => {
+    const backupName = arg;
+
     try {
         const sourceDir = path.join(os.homedir(), 'AppData', 'LocalLow', 'Dodge Roll', 'Enter the Gungeon');
         const copied = await copyDirectory(sourceDir, `backups/${backupName}`);
@@ -41,7 +49,8 @@ const handleSave = async (event: IpcMainEvent, backupName: string) => {
     }
 }
 
-const handleLoad = async (event: IpcMainEvent, backupName: string) => {
+const handleLoad = async (event: IpcMainEvent, arg: string) => {
+    const backupName = arg;
     try {
         const destDir = path.join(os.homedir(), 'AppData', 'LocalLow', 'Dodge Roll', 'Enter the Gungeon');
         const copied = await copyDirectory(`backups/${backupName}`, destDir);
@@ -61,7 +70,8 @@ const handleLoad = async (event: IpcMainEvent, backupName: string) => {
 }
 
 
-const handleDelete = async (event: IpcMainEvent, backupName: string) => {
+const handleDelete = async (event: IpcMainEvent, arg: string) => {
+    const backupName = arg;
     try {
         const backupData = await fs.readFile('backups/backups.json', 'utf8');
         const backups = JSON.parse(backupData);
@@ -84,7 +94,8 @@ const handleGetAll = async (event: IpcMainEvent) => {
     }
 }  
 
-const handleGetBackup = async (event: IpcMainEvent, backupName: string) => {
+const handleGetBackup = async (event: IpcMainEvent, arg: string) => {
+    const backupName = arg;
     try {
         const backupData = await fs.readFile('backups/backups.json', 'utf8');
         const backups = JSON.parse(backupData);
@@ -108,8 +119,8 @@ const handleClose = async (event: IpcMainEvent) => {
     }
 }
 
-const handleCreate = async (event: IpcMainEvent, backupName: string) => {
-
+const handleCreate = async (event: IpcMainEvent, arg: string) => {
+    const backupName = arg;
     if(!backupName){
         return 'Backup name cannot be empty.'
     }
@@ -155,9 +166,14 @@ const handleCreate = async (event: IpcMainEvent, backupName: string) => {
     }
 }
 
-interface IpcHandler {
-    event: string;
-    callback: (event: IpcMainEvent, arg: string) => void
+
+const handleSetOnTop = async (event: IpcMainEvent, arg: boolean) => {
+    const onTop = arg;
+
+    const window = BrowserWindow.fromWebContents(event.sender);
+    if (window) {
+        window.setAlwaysOnTop(onTop);
+    }
 }
 
 const ipcHandlers = [
@@ -192,12 +208,16 @@ const ipcHandlers = [
     { 
         event: CREATE, 
         callback: handleCreate
+    },
+    {
+        event: ALWAYS_ON_TOP,
+        callback: handleSetOnTop
     }
 ]
 
 
 export const registerIPCHandlers = () => {
-    ipcHandlers.forEach(( handler:IpcHandler ) => {
+    ipcHandlers.forEach(( handler: IpcHandler ) => {
         ipcMain.on(handler.event, handler.callback)
     })
 

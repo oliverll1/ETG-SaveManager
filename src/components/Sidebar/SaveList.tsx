@@ -3,10 +3,12 @@ import { Button, Input, List, ListItem, ListItemPrefix, ListItemSuffix, Typograp
 import { getAllBackups, deleteBackup, createBackup, getBackup } from '../../IPC/IPCMessages';
 import { useEffect, useState } from 'react';
 import { SaveState } from '../Context/SaveProvider';
+import { useNavigate } from 'react-router-dom';
 
 export function SaveList() {
-    const { selectedBackup, setSelectedBackup, backupList, setBackupList } = SaveState();
+    const { setSelectedBackup, backupList, setBackupList } = SaveState();
     const [saveNameInputText, setSaveNameInputText] = useState('');
+    const navigate = useNavigate();
 
     const getBackupList = async () => {
         try {
@@ -17,7 +19,7 @@ export function SaveList() {
             }
             
         } catch (error) {
-            console.error('Error fetching backup list:', error); 
+            console.error('Error fetching backup list:', error);
         }
     }
 
@@ -42,6 +44,7 @@ export function SaveList() {
     }
 
     const handleSelect = async (name: string) => {
+        navigate('/');
         try {
             const data = await getBackup(name);
           

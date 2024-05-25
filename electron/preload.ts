@@ -1,6 +1,6 @@
 import { ipcRenderer, contextBridge } from 'electron';
 import { IPCActions } from './IPCActions';
-const { SAVE, LOAD, DELETE, GET_ALL, GET_BACKUP, DELETE_ALL, CLOSE, CREATE } = IPCActions.Window;
+const { SAVE, LOAD, DELETE, GET_ALL, GET_BACKUP, DELETE_ALL, CLOSE, CREATE, ALWAYS_ON_TOP } = IPCActions.Window;
 
 // --------- Expose some API to the Renderer process ---------
 contextBridge.exposeInMainWorld('ipcRenderer', {
@@ -78,5 +78,8 @@ contextBridge.exposeInMainWorld('ipcAPI', {
   },
   createBackup: (saveName: string) => {
     ipcRenderer.send(CREATE, saveName)
+  },
+  setAlwaysOnTop: (value: boolean) => {
+    ipcRenderer.send(ALWAYS_ON_TOP, value)
   }
 })

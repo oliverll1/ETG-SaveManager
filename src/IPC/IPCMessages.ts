@@ -7,9 +7,10 @@ interface IpcAPI {
     deleteAllBackups: () => void;
     closeWindow: () => void;
     createBackup: (name: string) => void;
+    setAlwaysOnTop: (value: boolean) => void
 }
 
-const { saveBackup, loadBackup, deleteBackup, getBackup, getAllBackups, deleteAllBackups, closeWindow, createBackup } = window['ipcAPI'] as IpcAPI;
+const { saveBackup, loadBackup, deleteBackup, getBackup, getAllBackups, deleteAllBackups, closeWindow, createBackup, setAlwaysOnTop } = window['ipcAPI'] as IpcAPI;
 
 export {
     saveBackup,
@@ -19,5 +20,6 @@ export {
     getAllBackups,
     deleteAllBackups,
     closeWindow,
-    createBackup
+    createBackup,
+    setAlwaysOnTop
 }

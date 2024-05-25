@@ -14,11 +14,11 @@ export const SaveProvider = ({children}: SaveProviderProps) => {
         path: "",
         isBackup: false
     });
-
+    const [windowOnTop , setWindowOnTop] = useState(false);
     const [backupList, setBackupList] = useState<object[]>([]);
 
     return (
-        <SaveContext.Provider value={{selectedBackup, setSelectedBackup, backupList, setBackupList}}>
+        <SaveContext.Provider value={{selectedBackup, setSelectedBackup, backupList, setBackupList, windowOnTop, setWindowOnTop}}>
             {children}
         </SaveContext.Provider>
     );

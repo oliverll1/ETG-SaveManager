@@ -13,7 +13,7 @@ export default withMT({
     extend: {
       colors: {
         'custom-red-darker': '#750005',
-        'custom-purple': '#664EFF',
+        'custom-purple': '#5240c9',
         'custom-purple-darker': '#302D96',
         'custom-purple-2': '#5541d6',
         'custom-gray': '#303030',

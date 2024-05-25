@@ -34,6 +34,16 @@ export function SingleSaveScreen() {
 
   console.log(selectedBackup);
 
+  if (!selectedBackup.name) {  
+     return(
+      <div className='w-full h-screen flex  justify-center items-center'>
+        <div>
+          <Typography variant="h2">Select a save to continue</Typography>
+        </div>
+      </div>
+     )
+  }
+    
   return (
     <div className="flex flex-col w-full justify-start gap-10">
 
