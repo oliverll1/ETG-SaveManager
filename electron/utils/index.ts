@@ -23,7 +23,14 @@ export const createFile = async (filePath: string) => {
 export const copyDirectory = async (sourceDir: string, destDir: string) => {
 
     try {
-        await fsExtra.copy(sourceDir, destDir, { overwrite: true, errorOnExist: false });
+      await fsExtra.copy(sourceDir, destDir, { 
+        overwrite: true, 
+        errorOnExist: false, 
+        filter: (src) => {
+            // Exclude .txt files
+            return !src.endsWith('.txt');
+        }
+    });
         console.log('Folder copied successfully!');
         return true;
       } catch (error) {
