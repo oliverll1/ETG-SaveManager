@@ -20,9 +20,18 @@ export function SingleSaveScreen() {
     }
   };
 
-  const handleLoadClick = () => {
-    loadBackup(selectedBackup.name);
-    toast.success('Loaded');
+  const handleLoadClick = async () => {
+    try {
+      await loadBackup(selectedBackup.name);
+      toast.success('Loaded');
+      
+    } catch (error) {
+        console.error('Error loading backup:', error); 
+        toast.error('Error loading backup');
+    }
+    
+    
+   
   };
 
   const handleDelete = async (name:string) => {
