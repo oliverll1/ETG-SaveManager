@@ -40,7 +40,7 @@ export const removeRegistryKey = async () => {
   try {
 
     // Execute the PowerShell command asynchronously
-    const { stdout, stderr } = await execAsync(command);
+    const { stdout } = await execAsync(command);
     console.log('Output:', stdout);
   } catch (error) {
       console.error('Error:', error);

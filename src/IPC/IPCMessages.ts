@@ -1,9 +1,11 @@
+import { IBackup } from "../components/Context/SaveProvider";
+
 interface IpcAPI {
-    saveBackup: ( name: string ) => object;
+    saveBackup: ( name: string ) => IBackup;
     loadBackup: ( name: string ) => void;
     deleteBackup: ( name: string ) => void;
-    getAllBackups: () => object[];
-    getBackup: ( name: string ) => object;
+    getAllBackups: () => IBackup[];
+    getBackup: ( name: string ) => IBackup;
     deleteAllBackups: () => void;
     closeWindow: () => void;
     createBackup: (name: string) => void;

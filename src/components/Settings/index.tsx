@@ -1,9 +1,9 @@
 import { Card, Checkbox, Typography } from '@material-tailwind/react';
-import { SaveState } from '../Context/SaveProvider';
+import { SaveState, ISaveState } from '../Context/SaveProvider';
 import { setAlwaysOnTop } from '../../IPC/IPCMessages';
 export default function Settings() {
 
-  const { windowOnTop, setWindowOnTop } = SaveState();
+  const { windowOnTop, setWindowOnTop } = SaveState() as ISaveState ;
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         console.log(event.target.checked);

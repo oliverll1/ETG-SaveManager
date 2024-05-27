@@ -8,3 +8,9 @@ declare module "@material-tailwind/react" {
     crossOrigin?: unknown;
   }
 }
+
+declare global {
+  interface Window {
+      ipcAPI: IpcAPI;
+  }
+}

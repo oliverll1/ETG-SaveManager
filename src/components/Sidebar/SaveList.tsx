@@ -2,11 +2,11 @@ import { FolderIcon, TrashIcon } from '@heroicons/react/16/solid';
 import { Button, Input, List, ListItem, ListItemPrefix, ListItemSuffix, Typography } from '@material-tailwind/react';
 import { getAllBackups, deleteBackup, createBackup, getBackup } from '../../IPC/IPCMessages';
 import { useEffect, useState } from 'react';
-import { SaveState } from '../Context/SaveProvider';
+import { SaveState, ISaveState } from '../Context/SaveProvider';
 import { useNavigate } from 'react-router-dom';
 
 export function SaveList() {
-    const { setSelectedBackup, backupList, setBackupList } = SaveState();
+    const { setSelectedBackup, backupList, setBackupList } = SaveState() as ISaveState;
     const [saveNameInputText, setSaveNameInputText] = useState('');
     const navigate = useNavigate();
 
@@ -35,7 +35,7 @@ export function SaveList() {
             const backupExists = backupList.some(backup => backup.name === saveNameInputText);
             if (!backupExists) {
                 await createBackup(saveNameInputText);
-                setBackupList((prevList) => [...prevList, { name: saveNameInputText }]);
+                setBackupList((prevList) => [...prevList, { name: saveNameInputText, date: '', path: '', isBackup: false }]);
                 setSaveNameInputText('');
             } else {
                 console.warn('An item with the same name already exists.');
@@ -89,21 +89,21 @@ export function SaveList() {
             </div>
 
             <List>
-                {backupList.map((item) => (
+                {backupList.map((backup) => (
                     <ListItem 
-                        key={item.name}
-                        onClick={() => handleSelect(item.name)}
+                        key={backup.name}
+                        onClick={() => handleSelect(backup.name)}
                         className="text-gray-100 hover:bg-custom-purple hover:text-gray-100 focus:bg-custom-purple focus:text-gray-100 active:bg-custom-purple active:text-gray-100"
                     >
                     <ListItemPrefix>
                         <FolderIcon className="h-5 w-5" />
                     </ListItemPrefix>
                     
-                    {item.name}
+                    {backup.name}
                     <ListItemSuffix >
                         <Button 
                             className=" hover:bg-custom-purple-darker  p-2 rounded-xl transition-all"
-                            onClick={(event) => handleDelete(event, item.name)}
+                            onClick={(event) => handleDelete(event, backup.name)}
                         > 
                         <TrashIcon className="h-5 w-5"/>
                         </Button>

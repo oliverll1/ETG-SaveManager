@@ -1,17 +1,16 @@
 import { Button, Card, Typography } from '@material-tailwind/react';
 import { saveBackup, loadBackup, deleteBackup } from '../../IPC/IPCMessages';
-import { SaveState } from '../Context/SaveProvider';
+import { ISaveState, SaveState } from '../Context/SaveProvider';
 import { SaveStatus } from './SaveStatus';
 import { Chip } from "@material-tailwind/react";
 import toast from 'react-hot-toast';
 
 export function SingleSaveScreen() {
 
-  const { selectedBackup, setSelectedBackup, setBackupList } = SaveState();
+  const { selectedBackup, setSelectedBackup, setBackupList } = SaveState() as ISaveState;
   const handleSaveClick = async () => {
     try {
       const backup = await saveBackup(selectedBackup.name);
-      console.log(backup);
       setSelectedBackup(backup);
       toast.success('Saved');
       
@@ -31,8 +30,6 @@ export function SingleSaveScreen() {
     setSelectedBackup({ name: '', date: '', path: '', isBackup: false });
     setBackupList((prevList) => prevList.filter((backup) => backup.name !== name));
   }
-
-  console.log(selectedBackup);
 
   if (!selectedBackup.name) {  
      return(

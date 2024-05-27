@@ -25,10 +25,10 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
 contextBridge.exposeInMainWorld('ipcAPI', {
   saveBackup: (saveName: string) => {
     return new Promise((resolve, reject) => {
-      ipcRenderer.once('SAVE_SUCCESS', (event, backup) => {
+      ipcRenderer.once('SAVE_SUCCESS', (_event, backup) => {
         resolve(backup);
       });
-      ipcRenderer.once('SAVE_ERROR', (event, error) => {
+      ipcRenderer.once('SAVE_ERROR', (_event, error) => {
         reject(error);
       });
       ipcRenderer.send(SAVE,  saveName)
@@ -36,10 +36,10 @@ contextBridge.exposeInMainWorld('ipcAPI', {
   },
   loadBackup: (saveName: string) => {
     return new Promise<void>((resolve, reject) => {
-      ipcRenderer.once('LOAD_SUCCESS', (event) => {
+      ipcRenderer.once('LOAD_SUCCESS', () => {
         resolve();
       });
-      ipcRenderer.once('LOAD_ERROR', (event) => {
+      ipcRenderer.once('LOAD_ERROR', () => {
         reject();
       });
       ipcRenderer.send(LOAD,  saveName)
@@ -50,10 +50,10 @@ contextBridge.exposeInMainWorld('ipcAPI', {
   },
   getAllBackups: () => {
     return new Promise((resolve, reject) => {
-      ipcRenderer.once('GET_ALL_SUCCESS', (event, backups) => {
+      ipcRenderer.once('GET_ALL_SUCCESS', (_event, backups) => {
         resolve(backups);
       });
-      ipcRenderer.once('GET_ALL_ERROR', (event, error) => {
+      ipcRenderer.once('GET_ALL_ERROR', (_event, error) => {
         reject(error);
       });
       ipcRenderer.send(GET_ALL);
@@ -61,10 +61,10 @@ contextBridge.exposeInMainWorld('ipcAPI', {
   },
   getBackup: (saveName: string) => {
     return new Promise((resolve, reject) => {
-      ipcRenderer.once('GET_SUCCESS', (event, backup) => {
+      ipcRenderer.once('GET_SUCCESS', (_event, backup) => {
         resolve(backup);
       });
-      ipcRenderer.once('GET_ERROR', (event, error) => {
+      ipcRenderer.once('GET_ERROR', (_event, error) => {
         reject(error);
       });
       ipcRenderer.send(GET_BACKUP, saveName);

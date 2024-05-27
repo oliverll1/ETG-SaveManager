@@ -1,6 +1,5 @@
 import fs from 'fs/promises';
 import path from 'path';
-
 import os from 'os';
 
 import { BrowserWindow, ipcMain, IpcMainEvent } from 'electron';
@@ -70,7 +69,7 @@ const handleLoad = async (event: IpcMainEvent, arg: string) => {
 }
 
 
-const handleDelete = async (event: IpcMainEvent, arg: string) => {
+const handleDelete = async (_event: IpcMainEvent, arg: string) => {
     const backupName = arg;
     try {
         const backupData = await fs.readFile('backups/backups.json', 'utf8');
@@ -106,7 +105,7 @@ const handleGetBackup = async (event: IpcMainEvent, arg: string) => {
     }
 }
 
-const handleDeleteAll = async (event: IpcMainEvent, arg: string) => {
+const handleDeleteAll = async (_event: IpcMainEvent, arg: string) => {
     console.log(arg);
     return "deleteAll";
 }
@@ -119,7 +118,7 @@ const handleClose = async (event: IpcMainEvent) => {
     }
 }
 
-const handleCreate = async (event: IpcMainEvent, arg: string) => {
+const handleCreate = async (_event: IpcMainEvent, arg: string) => {
     const backupName = arg;
     if(!backupName){
         return 'Backup name cannot be empty.'
@@ -166,15 +165,14 @@ const handleCreate = async (event: IpcMainEvent, arg: string) => {
     }
 }
 
-
 const handleSetOnTop = async (event: IpcMainEvent, arg: boolean) => {
     const onTop = arg;
-
     const window = BrowserWindow.fromWebContents(event.sender);
     if (window) {
-        window.setAlwaysOnTop(onTop);
+        // Use 'screen-saver' level to ensure the window stays on top even over fullscreen apps
+        window.setAlwaysOnTop(onTop, 'screen-saver');
     }
-}
+};
 
 const ipcHandlers = [
     { 
