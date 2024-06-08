@@ -11,6 +11,14 @@
     "dist",
     "dist-electron"
   ],
+  "publish": [
+      {
+        "provider": "github",
+        "private": false,
+        "owner": "oliverll1",
+        "repo": "ETG-SaveManager"
+      }
+  ],
   "mac": {
     "target": [
       "dmg"
@@ -19,6 +27,9 @@
     "icon": "./public/bullet.png"
   },
   "win": {
+    "publish": [
+        "github"
+    ],
     "target": [
       {
         "target": "nsis",
