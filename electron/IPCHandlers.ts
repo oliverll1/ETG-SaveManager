@@ -6,6 +6,7 @@ import { BrowserWindow, ipcMain, IpcMainEvent } from 'electron';
 import { IPCActions } from './IPCActions';
 import { copyDirectory, createFile, removeRegistryKey } from './utils';
 
+
 interface IpcHandler {
     event: string;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -14,19 +15,23 @@ interface IpcHandler {
 
 const { SAVE, LOAD, DELETE, GET_ALL, GET_BACKUP, DELETE_ALL, CLOSE, CREATE, ALWAYS_ON_TOP } = IPCActions.Window;
 
+const etgSaveDir = path.join(os.homedir(), 'AppData', 'LocalLow', 'Dodge Roll', 'Enter the Gungeon');
+const rootBackupDir = path.join(os.homedir(), 'Documents', 'ETGBackups');
+const backupsJson = path.join(rootBackupDir, 'backups.json');
+
 const handleSave = async (event: IpcMainEvent, arg: string) => {
     const backupName = arg;
 
-    try {
-        const sourceDir = path.join(os.homedir(), 'AppData', 'LocalLow', 'Dodge Roll', 'Enter the Gungeon');
-        const copied = await copyDirectory(sourceDir, `backups/${backupName}`);
+    try {    
+        const backupDir = path.join(rootBackupDir, backupName);
+        const copied = await copyDirectory(etgSaveDir, backupDir);
 
         if(!copied){
             event.sender.send('SAVE_ERROR', 'Failed to copy directory');
             return;
         }
 
-        const backupData = await fs.readFile('backups/backups.json', 'utf8');
+        const backupData = await fs.readFile(backupsJson, 'utf8');
         const backups = JSON.parse(backupData);
 
         backups[backupName] = {
@@ -34,11 +39,11 @@ const handleSave = async (event: IpcMainEvent, arg: string) => {
             date: new Date().toLocaleString('en-US', {
                 timeZone: 'UTC',
             }),
-            path: `backups/${backupName}`,
+            path: backupDir,
             isBackup: true,
         };
         
-        await fs.writeFile('backups/backups.json', JSON.stringify(backups));
+        await fs.writeFile(backupsJson, JSON.stringify(backups));
 
         event.sender.send('SAVE_SUCCESS', backups[backupName]);
 
@@ -50,9 +55,10 @@ const handleSave = async (event: IpcMainEvent, arg: string) => {
 
 const handleLoad = async (event: IpcMainEvent, arg: string) => {
     const backupName = arg;
+    const backupDir = path.join(rootBackupDir, backupName);
     try {
-        const destDir = path.join(os.homedir(), 'AppData', 'LocalLow', 'Dodge Roll', 'Enter the Gungeon');
-        const copied = await copyDirectory(`backups/${backupName}`, destDir);
+        
+        const copied = await copyDirectory(backupDir, etgSaveDir);
         removeRegistryKey();
 
         if(!copied){
@@ -72,11 +78,14 @@ const handleLoad = async (event: IpcMainEvent, arg: string) => {
 const handleDelete = async (_event: IpcMainEvent, arg: string) => {
     const backupName = arg;
     try {
-        const backupData = await fs.readFile('backups/backups.json', 'utf8');
+        const backupData = await fs.readFile(backupsJson, 'utf8');
         const backups = JSON.parse(backupData);
+        const backupDir = path.join(rootBackupDir, backupName);
+
         delete backups[backupName];
-        await fs.writeFile('backups/backups.json', JSON.stringify(backups, null, 4));
-        await fs.rm(`backups/${backupName}`, { recursive: true });
+
+        await fs.writeFile(backupsJson, JSON.stringify(backups, null, 4));
+        await fs.rm(backupDir, { recursive: true });
     } catch (error) {
         console.error('Error in handleDelete:', error);
     }
@@ -84,7 +93,7 @@ const handleDelete = async (_event: IpcMainEvent, arg: string) => {
 
 const handleGetAll = async (event: IpcMainEvent) => {
     try {
-        const data = await fs.readFile('backups/backups.json', 'utf8');
+        const data = await fs.readFile(backupsJson, 'utf8');
         const backups = JSON.parse(data);
         event.sender.send('GET_ALL_SUCCESS', Object.values(backups));
     } catch (error) {
@@ -96,7 +105,7 @@ const handleGetAll = async (event: IpcMainEvent) => {
 const handleGetBackup = async (event: IpcMainEvent, arg: string) => {
     const backupName = arg;
     try {
-        const backupData = await fs.readFile('backups/backups.json', 'utf8');
+        const backupData = await fs.readFile(backupsJson, 'utf8');
         const backups = JSON.parse(backupData);
         event.sender.send('GET_SUCCESS', backups[backupName]);
     } catch (error) {
@@ -124,28 +133,24 @@ const handleCreate = async (_event: IpcMainEvent, arg: string) => {
         return 'Backup name cannot be empty.'
     }
 
-    const folderName = 'backups';
-    const fileName = 'backups.json';
-    const filePath = path.join(folderName, fileName);
-    const backupPath = path.join(folderName, backupName);
+    const backupDir = path.join(rootBackupDir, backupName);
     
-
     const data = {
         name: backupName,
         date: '',
-        path: backupPath,
+        path: backupDir,
         isBackup: false,
     };
 
     try {
         // Check if the folder exists
-        await fs.mkdir(folderName, { recursive: true });
+        await fs.mkdir(backupDir, { recursive: true });
 
         // Create the file if it doesn't exist
-        createFile(filePath);
+        await createFile(backupsJson);
 
         // Parse the JSON file
-        const fileData = JSON.parse(await fs.readFile(filePath, 'utf-8'));
+        const fileData = JSON.parse(await fs.readFile(backupsJson, 'utf-8'));
         console.log(fileData);
 
         // Check if the entry already exists
@@ -157,9 +162,9 @@ const handleCreate = async (_event: IpcMainEvent, arg: string) => {
         fileData[backupName] = data;
 
         // Write the updated JSON file
-        await fs.writeFile(filePath, JSON.stringify(fileData, null, 2), 'utf-8');
+        await fs.writeFile(backupsJson, JSON.stringify(fileData, null, 2), 'utf-8');
 
-        await fs.mkdir(backupPath, { recursive: true });
+        await fs.mkdir(backupDir, { recursive: true });
     } catch (error) {
         console.error(error);
     }
